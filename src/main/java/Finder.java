@@ -1,5 +1,6 @@
 public class Finder {
 
+    
     public java.lang.Integer findMax(int[] intArray) {
         if(intArray == null) {
             return null;

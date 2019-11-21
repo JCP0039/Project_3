@@ -59,20 +59,53 @@ public class SQLiteDataAdapter implements IDataAdapter {
     }
     public int saveProduct(ProductModel product) {
         try {
+            Statement stmt = conn.createStatement();
+            ProductModel p = loadProduct(product.mProductID); // check if this product exists
+            if (p != null) {
+                stmt.executeUpdate("DELETE FROM Products WHERE ProductID = " + product.mProductID);
+            }
+
             String sql = "INSERT INTO Products(ProductId, Name, Price, Quantity) VALUES " + product;
             System.out.println(sql);
-            Statement stmt = conn.createStatement();
+
             stmt.executeUpdate(sql);
 
         } catch (Exception e) {
             String msg = e.getMessage();
             System.out.println(msg);
             if (msg.contains("UNIQUE constraint failed"))
-                return PRODUCT_DUPLICATE_ERROR;
+                return PRODUCT_SAVE_FAILED;
         }
 
-        return PRODUCT_SAVED_OK;
+        return PRODUCT_SAVE_OK;
     }
+
+    public PurchaseModel loadPurchase(int purchaseID) {
+        PurchaseModel purchase = null;
+
+        try {
+            String sql = "SELECT PurchaseID, CustomerID, ProductID, Price, Quantity, Cost, Tax, Total, Date FROM Purchases WHERE PurchaseID = " + purchaseID;
+            Statement stmt = conn.createStatement();
+            ResultSet rs = stmt.executeQuery(sql);
+            if (rs.next()) {
+                purchase = new PurchaseModel();
+                purchase.mPurchaseID = rs.getInt("PurchaseID");
+                purchase.mCustomerID = rs.getInt("CustomerID");
+                purchase.mProductID = rs.getInt("ProductId");
+                purchase.mPrice = rs.getDouble("Price");
+                purchase.mQuantity = rs.getDouble("Quantity");
+                purchase.mCost = rs.getDouble("Cost");
+                purchase.mTax = rs.getDouble("Tax");
+                purchase.mTotal = rs.getDouble("Total");
+                purchase.mDate = rs.getString("Date");
+            }
+
+        } catch (SQLException e) {
+            System.out.println(e.getMessage());
+        }
+        return purchase;
+    }
+
 
     @Override
     public int savePurchase(PurchaseModel purchase) {
@@ -86,11 +119,39 @@ public class SQLiteDataAdapter implements IDataAdapter {
             String msg = e.getMessage();
             System.out.println(msg);
             if (msg.contains("UNIQUE constraint failed"))
-                return PURCHASE_DUPLICATE_ERROR;
+                return PURCHASE_SAVE_FAILED;
         }
 
-        return PURCHASE_SAVED_OK;
+        return PURCHASE_SAVE_OK;
 
+    }
+
+    @Override
+    public PurchaseHistoryModel loadPurchaseHistory(int id) {
+        PurchaseHistoryModel res = new PurchaseHistoryModel();
+        try {
+            String sql = "SELECT * FROM Purchases WHERE CustomerId = " + id;
+            Statement stmt = conn.createStatement();
+            ResultSet rs = stmt.executeQuery(sql);
+            while (rs.next()) {
+                PurchaseModel purchase = new PurchaseModel();
+                purchase.mCustomerID = id;
+                purchase.mPurchaseID = rs.getInt("PurchaseID");
+                purchase.mProductID = rs.getInt("ProductID");
+                purchase.mPrice = rs.getDouble("Price");
+                purchase.mQuantity = rs.getDouble("Quantity");
+                purchase.mCost = rs.getDouble("Cost");
+                purchase.mTax = rs.getDouble("Tax");
+                purchase.mTotal = rs.getDouble("Total");
+                purchase.mDate = rs.getString("Date");
+
+                res.purchases.add(purchase);
+            }
+
+        } catch (Exception e) {
+            System.out.println(e.getMessage());
+        }
+        return res;
     }
 
     public CustomerModel loadCustomer(int id) {
@@ -108,7 +169,7 @@ public class SQLiteDataAdapter implements IDataAdapter {
                 customer.mAddress = rs.getString("Address");
             }
 
-        } catch (SQLException e) {
+        } catch (Exception e) {
             System.out.println(e.getMessage());
         }
         return customer;
@@ -116,19 +177,49 @@ public class SQLiteDataAdapter implements IDataAdapter {
 
     public int saveCustomer(CustomerModel customer) {
         try {
-            String sql = "INSERT INTO Customer VALUES " + customer;
-            System.out.println(sql);
             Statement stmt = conn.createStatement();
+            CustomerModel c = loadCustomer(customer.mCustomerID); // check if this product exists
+            if (c != null) {
+                stmt.executeUpdate("DELETE FROM Products WHERE ProductID = " + customer.mCustomerID);
+            }
+
+            String sql = "INSERT INTO Customer(CustomerID, Name, Address, Phone) VALUES " + customer;
+            System.out.println(sql);
+
             stmt.executeUpdate(sql);
 
         } catch (Exception e) {
             String msg = e.getMessage();
             System.out.println(msg);
             if (msg.contains("UNIQUE constraint failed"))
-                return CUSTOMER_DUPLICATE_ERROR;
+                return PRODUCT_SAVE_FAILED;
         }
 
-        return PURCHASE_SAVED_OK;
-
+        return PRODUCT_SAVE_OK;
     }
+
+
+    public UserModel loadUser(String username) {
+        UserModel user = null;
+
+        try {
+            String sql = "SELECT * FROM Users WHERE Username = \"" + username + "\"";
+            Statement stmt = conn.createStatement();
+            ResultSet rs = stmt.executeQuery(sql);
+            if (rs.next()) {
+                user = new UserModel();
+                user.mUsername = username;
+                user.mPassword = rs.getString("Password");
+                user.mFullname = rs.getString("Fullname");
+                user.mUserType = rs.getInt("Usertype");
+                if (user.mUserType == UserModel.CUSTOMER)
+                    user.mCustomerID = rs.getInt("CustomerID");
+            }
+
+        } catch (Exception e) {
+            System.out.println(e.getMessage());
+        }
+        return user;
+    }
+
 }

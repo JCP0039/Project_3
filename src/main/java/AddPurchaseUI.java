@@ -6,11 +6,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.FocusEvent;
 import java.awt.event.FocusListener;
-import java.io.BufferedWriter;
-import java.io.FileWriter;
-import java.io.IOException;
 import java.util.Calendar;
-
 
 public class AddPurchaseUI {
     public JFrame view;
@@ -269,44 +265,11 @@ public class AddPurchaseUI {
                 return;
             }
 
-
-            switch (StoreManager.getInstance().getDataAdapter().savePurchase(purchase)) {
-                case SQLiteDataAdapter.PURCHASE_DUPLICATE_ERROR:
-                    JOptionPane.showMessageDialog(null, "Purchase NOT added successfully! Duplicate product ID!");
-                default:
-                    JOptionPane.showMessageDialog(null, "Purchase added successfully!" + purchase);
-
-
-                    IReceiptBuilder rec = new TXTReceiptBuilder();
-
-                    rec.appendHeader("Receipt");
-                    rec.appendCustomer(customer);
-                    rec.appendProduct(product);
-                    rec.appendPurchase(purchase);
-                    rec.appendFooter("Thanks For Shopping");
-
-                    System.out.println(rec.toString());
-
-                    BufferedWriter writer = null;
-                    try {
-                        writer = new BufferedWriter(new FileWriter("Rec.txt"));
-                        writer.write(rec.toString());
-                        //Note to self appears in folder Activity01
-                    } catch (IOException e) {
-                        System.err.println(e);
-
-                    } finally {
-                        if (writer != null) {
-                            try {
-                                writer.close();
-
-                            } catch (IOException e) {
-                                System.err.println(e);
-                            }
-                        }
-                    }
-            }
-
+            int res = StoreManager.getInstance().getDataAdapter().savePurchase(purchase);
+            if (res == SQLiteDataAdapter.PURCHASE_SAVE_FAILED)
+                JOptionPane.showMessageDialog(null, "Purchase NOT added successfully! Duplicate product ID!");
+            else
+                JOptionPane.showMessageDialog(null, "Purchase added successfully!" + purchase);
         }
     }
 

@@ -180,7 +180,7 @@ public class SQLiteDataAdapter implements IDataAdapter {
             Statement stmt = conn.createStatement();
             CustomerModel c = loadCustomer(customer.mCustomerID); // check if this product exists
             if (c != null) {
-                stmt.executeUpdate("DELETE FROM Products WHERE ProductID = " + customer.mCustomerID);
+                stmt.executeUpdate("DELETE FROM Customer WHERE CustomerID = " + customer.mCustomerID);
             }
 
             String sql = "INSERT INTO Customer(CustomerID, Name, Address, Phone) VALUES " + customer;

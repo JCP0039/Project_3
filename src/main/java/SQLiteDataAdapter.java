@@ -110,9 +110,18 @@ public class SQLiteDataAdapter implements IDataAdapter {
     @Override
     public int savePurchase(PurchaseModel purchase) {
         try {
+
+
+
             String sql = "INSERT INTO Purchases VALUES " + purchase;
             System.out.println(sql);
             Statement stmt = conn.createStatement();
+
+            PurchaseModel p = loadPurchase(purchase.mPurchaseID); // check if this product exists
+            if (p != null) {
+                stmt.executeUpdate("DELETE FROM Purchases WHERE PurchaseID = " + purchase.mPurchaseID);
+            }
+
             stmt.executeUpdate(sql);
 
         } catch (Exception e) {

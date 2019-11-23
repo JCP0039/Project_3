@@ -16,11 +16,11 @@ public class ManagePurchaseUI {
     public JTextField txtPurchaseID = new JTextField(20);
     public JTextField txtCustomerID = new JTextField(20);
     public JTextField txtPrice = new JTextField(20);
-    public JTextField txtQuantity = new JTextField(30);
-    public JTextField txtTax = new JTextField(30);
-    public JTextField txtCost = new JTextField(30);
-    public JTextField txtTotal = new JTextField(30);
-    public JTextField txtDate = new JTextField(30);
+    public JTextField txtQuantity = new JTextField(20);
+    public JTextField txtTax = new JTextField(20);
+    public JTextField txtCost = new JTextField(20);
+    public JTextField txtTotal = new JTextField(20);
+    public JTextField txtDate = new JTextField(20);
 
     public ManagePurchaseUI() {
         this.view = new JFrame();
@@ -207,7 +207,7 @@ public class ManagePurchaseUI {
 
             String date = txtDate.getText();
             if (date.length() == 0) {
-                JOptionPane.showMessageDialog(null, "ProductID cannot be empty!");
+                JOptionPane.showMessageDialog(null, "Date cannot be empty!");
                 return;
             }
 
